@@ -34,6 +34,7 @@ const formSchema = z.object({
 
 export function ContactForm() {
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isSuccess, setIsSuccess] = useState(false);
 
     // 1. Define your form.
     const form = useForm<z.infer<typeof formSchema>>({
@@ -54,12 +55,34 @@ export function ContactForm() {
         setTimeout(() => {
             console.log(values);
             setIsSubmitting(false);
+            setIsSuccess(true);
             form.reset();
             toast({
                 title: "Message Sent!",
                 description: "We'll get back to you within 24 hours.",
             })
         }, 1500);
+    }
+
+    if (isSuccess) {
+        return (
+            <Card className="w-full max-w-xl mx-auto bg-white/5 border-white/10 backdrop-blur-sm">
+                <CardHeader>
+                    <CardTitle className="text-2xl text-white text-center">Message Sent! 🚀</CardTitle>
+                    <CardDescription className="text-gray-400 text-center text-lg">
+                        Thank you for reaching out. <br /> Our team will get back to you shortly.
+                    </CardDescription>
+                </CardHeader>
+                <CardContent className="flex justify-center pb-8">
+                    <Button
+                        onClick={() => setIsSuccess(false)}
+                        className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white font-semibold px-8"
+                    >
+                        Send Another Message
+                    </Button>
+                </CardContent>
+            </Card>
+        );
     }
 
     return (
