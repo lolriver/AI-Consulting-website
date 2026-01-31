@@ -29,8 +29,7 @@ A premium, high-performance landing page for a Strategic AI Consulting business,
 
 1.  Clone the repository:
     ```bash
-    git clone https://github.com/yourusername/ai-landing-page.git
-    cd ai-landing-page
+    git clone https://github.com/lolriver/AI-Consulting-website.git
     ```
 
 2.  Install dependencies:
