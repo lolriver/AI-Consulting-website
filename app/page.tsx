@@ -2,8 +2,7 @@ import { Button } from "@/components/ui/button"
 import { TestimonialMarquee } from "@/components/ui/testimonial-marquee"
 import { AIConsole } from "@/components/ui/ai-console"
 
-
-import { Card, CardContent } from "@/components/ui/card"
+import { Card } from "@/components/ui/card"
 import { ChatWidget } from "@/components/ui/chat-widget"
 import { TextReveal } from "@/components/ui/text-reveal"
 import { ContactForm } from "@/components/ui/contact-form"
@@ -23,11 +22,6 @@ import {
   Clock,
   DollarSign,
   BarChart3,
-  Bot,
-  Workflow,
-  Brain,
-  MessageSquare,
-  Cog,
   Mail,
   Phone,
   MapPin,
@@ -35,8 +29,47 @@ import {
   Twitter,
   Facebook,
 } from "lucide-react"
+import { client } from "@/lib/sanity.client"
+import { groq } from "next-sanity"
+import { getIcon } from "@/lib/icons"
 
-export default function HomePage() {
+// Identify this page as dynamic/ISR
+export const revalidate = 30;
+
+const query = groq`{
+  "hero": *[_type == "hero"][0],
+  "services": *[_type == "service"],
+  "testimonials": *[_type == "testimonial"],
+  "pricing": *[_type == "pricing"] | order(price asc)
+}`;
+
+// Fallback visual mapping for services
+const visualMap: Record<string, any> = {
+  "AI Chatbots & Virtual Assistants": <div className="absolute inset-0 bg-gradient-to-br from-blue-600/10 via-cyan-500/5 to-transparent opacity-100"><BotVisual /></div>,
+  "Workflow Automation": <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/10 via-blue-500/5 to-transparent opacity-100"><CodeVisual /></div>,
+  "AI Integration Services": <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 via-purple-500/5 to-transparent opacity-100"><IntegrationVisual /></div>,
+  "Smart Analytics & Insights": <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/10 via-blue-500/5 to-transparent opacity-100"><GraphVisual /></div>,
+  "Custom AI Development": <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 via-blue-500/5 to-transparent opacity-100 overflow-hidden"><AIConsole className="w-full h-full scale-[0.85] origin-top-left absolute top-6 left-6 opacity-100" /></div>,
+};
+
+// Default fallback content
+const defaultHero = {
+  title: "Strategic AI Consulting for the Modern Enterprise",
+  subtitle: "Navigate the future with confidence. We provide expert AI strategy, custom development, and seamless integration to future-proof your business.",
+  ctaText: "Schedule Strategy Session"
+};
+
+export default async function HomePage() {
+  const data = await client.fetch(query).catch((err) => {
+    console.error("Sanity fetch error:", err);
+    return {};
+  });
+
+  const hero = data?.hero || defaultHero;
+  const services = data?.services || [];
+  const testimonials = data?.testimonials || [];
+  const pricingPlans = data?.pricing || [];
+
   return (
     <div className="min-h-screen bg-black">
       {/* Navigation Component */}
@@ -50,17 +83,17 @@ export default function HomePage() {
           {/* Left content */}
           <div className="flex-1 pl-4 pr-4 md:pl-20 md:pr-10 flex flex-col justify-center pt-24 lg:pt-0">
             <TextReveal
-              text="Strategic AI Consulting for the Modern Enterprise"
+              text={hero.title || defaultHero.title}
               className="text-4xl md:text-6xl font-bold leading-tight md:leading-tight text-left"
             />
             <p className="mt-6 text-neutral-300 max-w-lg text-lg">
-              Navigate the future with confidence. We provide expert AI strategy, custom development, and seamless integration to future-proof your business.
+              {hero.subtitle || defaultHero.subtitle}
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 mt-10">
               <a href="#contact" className="w-full sm:w-auto">
                 <Button size="lg" className="bg-white text-black hover:bg-gray-100 px-8 text-lg h-12 w-full sm:w-auto">
-                  Schedule Strategy Session
+                  {hero.ctaText || defaultHero.ctaText}
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </a>
@@ -178,76 +211,58 @@ export default function HomePage() {
           </div>
 
           <BentoGrid className="lg:grid-rows-3">
-            <BentoCard
-              name="AI Chatbots & Virtual Assistants"
-              className="lg:row-start-1 lg:row-end-4 lg:col-start-2 lg:col-end-3"
-              background={
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-600/10 via-cyan-500/5 to-transparent opacity-100">
-                  <BotVisual />
-                </div>
-              }
-              Icon={Bot}
-              description="Intelligent conversational agents that handle customer support, lead qualification, and sales inquiries 24/7 with natural language processing."
-              features={["Natural Language Processing", "24/7 Availability", "Multi-platform Support"]}
-              href="#"
-              cta="Learn more"
-            />
-            <BentoCard
-              name="Workflow Automation"
-              className="lg:col-start-1 lg:col-end-2 lg:row-start-1 lg:row-end-3"
-              background={
-                <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/10 via-blue-500/5 to-transparent opacity-100">
-                  <CodeVisual />
-                </div>
-              }
-              Icon={Workflow}
-              description="Streamline repetitive processes and eliminate manual tasks with intelligent automation systems that save 20+ hours per week."
-              features={["Process Optimization", "Error Reduction", "Scalable Workflow Architecture"]}
-              href="#"
-              cta="Learn more"
-            />
-            <BentoCard
-              name="AI Integration Services"
-              className="lg:col-start-1 lg:col-end-2 lg:row-start-3 lg:row-end-4"
-              background={
-                <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 via-purple-500/5 to-transparent opacity-100">
-                  <IntegrationVisual />
-                </div>
-              }
-              Icon={Cog}
-              description="Seamlessly integrate AI capabilities into your existing e-commerce and enterprise systems with custom APIs."
-              features={["Custom API Development", "Legacy System Support"]}
-              href="#"
-              cta="Learn more"
-            />
-            <BentoCard
-              name="Smart Analytics & Insights"
-              className="lg:col-start-3 lg:col-end-3 lg:row-start-1 lg:row-end-2"
-              background={
-                <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/10 via-blue-500/5 to-transparent opacity-100">
-                  <GraphVisual />
-                </div>
-              }
-              Icon={Brain}
-              description="AI-powered analytics that provide actionable insights and predictive intelligence for better decision making."
-              features={["Predictive Modeling", "Real-time Dashboards"]}
-              href="#"
-              cta="Learn more"
-            />
-            <BentoCard
-              name="Custom AI Development"
-              className="lg:col-start-3 lg:col-end-3 lg:row-start-2 lg:row-end-4"
-              background={
-                <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 via-blue-500/5 to-transparent opacity-100 overflow-hidden">
-                  <AIConsole className="w-full h-full scale-[0.85] origin-top-left absolute top-6 left-6 opacity-100" />
-                </div>
-              }
-              Icon={MessageSquare}
-              description="Bespoke AI solutions tailored to your unique business needs, from machine learning models to intelligent automation systems."
-              features={["Machine Learning Models", "Computer Vision", "Generative AI Solutions"]}
-              href="#"
-              cta="Learn more"
-            />
+            {services.length > 0 ? services.map((service: any, index: number) => {
+              // Custom grid positions
+              let className = "";
+              if (index === 0) className = "lg:row-start-1 lg:row-end-4 lg:col-start-2 lg:col-end-3";
+              else if (index === 1) className = "lg:col-start-1 lg:col-end-2 lg:row-start-1 lg:row-end-3";
+              else if (index === 2) className = "lg:col-start-1 lg:col-end-2 lg:row-start-3 lg:row-end-4";
+              else if (index === 3) className = "lg:col-start-3 lg:col-end-3 lg:row-start-1 lg:row-end-2";
+              else if (index === 4) className = "lg:col-start-3 lg:col-end-3 lg:row-start-2 lg:row-end-4";
+
+              return (
+                <BentoCard
+                  key={service._id || index}
+                  name={service.title}
+                  className={className}
+                  background={visualMap[service.title] || <div className="absolute inset-0 bg-gradient-to-br from-gray-800/10 to-transparent" />}
+                  Icon={getIcon(service.icon)}
+                  description={service.description}
+                  features={[]}
+                  href="#"
+                  cta="Learn more"
+                />
+              );
+            }) : (
+              // Hardcoded fallback data just to show something if CMS is empty
+              [
+                { title: "AI Chatbots & Virtual Assistants", description: "Intelligent conversational agents...", icon: "Bot" },
+                { title: "Workflow Automation", description: "Streamline repetitive processes...", icon: "Workflow" },
+                { title: "AI Integration Services", description: "Seamlessly integrate AI...", icon: "Cog" },
+                { title: "Smart Analytics & Insights", description: "AI-powered analytics...", icon: "Brain" },
+                { title: "Custom AI Development", description: "Bespoke AI solutions...", icon: "MessageSquare" }
+              ].map((service, index) => {
+                let className = "";
+                if (index === 0) className = "lg:row-start-1 lg:row-end-4 lg:col-start-2 lg:col-end-3";
+                else if (index === 1) className = "lg:col-start-1 lg:col-end-2 lg:row-start-1 lg:row-end-3";
+                else if (index === 2) className = "lg:col-start-1 lg:col-end-2 lg:row-start-3 lg:row-end-4";
+                else if (index === 3) className = "lg:col-start-3 lg:col-end-3 lg:row-start-1 lg:row-end-2";
+                else if (index === 4) className = "lg:col-start-3 lg:col-end-3 lg:row-start-2 lg:row-end-4";
+                return (
+                  <BentoCard
+                    key={index}
+                    name={service.title}
+                    className={className}
+                    background={visualMap[service.title] || <div className="absolute inset-0 bg-gradient-to-br from-gray-800/10 to-transparent" />}
+                    Icon={getIcon(service.icon)}
+                    description={service.description}
+                    features={[]}
+                    href="#"
+                    cta="Learn more"
+                  />
+                )
+              })
+            )}
           </BentoGrid>
         </div>
       </section>
@@ -263,7 +278,7 @@ export default function HomePage() {
         <div className="w-full relative">
           <div className="absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-black to-transparent z-10 pointer-events-none" />
           <div className="absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-black to-transparent z-10 pointer-events-none" />
-          <TestimonialMarquee />
+          <TestimonialMarquee testimonials={testimonials} />
         </div>
       </section>
 
@@ -319,66 +334,48 @@ export default function HomePage() {
         <Pricing
           title="Choose Your AI Transformation Plan"
           description="Flexible pricing designed to scale with your business growth\nAll plans include setup, training, and 30-day money-back guarantee"
-          plans={[
+          plans={pricingPlans.length > 0 ? pricingPlans.map((plan: any) => ({
+            ...plan,
+            price: plan.price || "0",
+            yearlyPrice: plan.yearlyPrice || (parseInt(plan.price || "0") * 0.8 * 12).toString(),
+            period: "month",
+            buttonText: "Get Started",
+            href: "#contact",
+          })) : [
+            // Fallback default pricing
             {
               name: "Starter",
               price: "997",
               yearlyPrice: "797",
               period: "month",
-              features: [
-                "AI Chatbot for customer support",
-                "Basic workflow automation (3 processes)",
-                "Email integration",
-                "Standard analytics dashboard",
-                "Email support",
-                "30-day money-back guarantee",
-              ],
-              description: "Perfect for small businesses starting their AI journey",
+              features: ["AI Chatbot", "Basic Automation", "Email Support"],
+              description: "For small businesses",
               buttonText: "Start Free Trial",
               href: "#contact",
-              isPopular: false,
+              isPopular: false
             },
             {
               name: "Professional",
               price: "2497",
               yearlyPrice: "1997",
               period: "month",
-              features: [
-                "Advanced AI chatbot with lead qualification",
-                "Complete workflow automation (10+ processes)",
-                "CRM & e-commerce integrations",
-                "Advanced analytics & reporting",
-                "Priority phone & email support",
-                "Custom AI training",
-                "Monthly optimization calls",
-                "ROI tracking & reporting",
-              ],
-              description: "Ideal for growing businesses ready to scale with AI",
+              features: ["Advanced Chatbot", "Full Automation", "Priority Support"],
+              description: "For growing businesses",
               buttonText: "Get Started",
               href: "#contact",
-              isPopular: true,
+              isPopular: true
             },
             {
               name: "Enterprise",
               price: "4997",
               yearlyPrice: "3997",
               period: "month",
-              features: [
-                "Custom AI development & deployment",
-                "Unlimited workflow automation",
-                "Full system integrations",
-                "Dedicated AI strategist",
-                "24/7 priority support",
-                "Advanced security & compliance",
-                "White-label solutions",
-                "Quarterly business reviews",
-                "Custom training & workshops",
-              ],
-              description: "Complete AI transformation for large organizations",
+              features: ["Custom AI", "Unlimited Automation", "Dedicated Strategist"],
+              description: "For large organizations",
               buttonText: "Contact Sales",
               href: "#contact",
-              isPopular: false,
-            },
+              isPopular: false
+            }
           ]}
         />
       </section>

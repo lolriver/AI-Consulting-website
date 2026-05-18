@@ -3,44 +3,7 @@
 import { cn } from "@/lib/utils"
 import { Star, User, Quote } from "lucide-react"
 
-const testimonials = [
-    {
-        name: "Dr. Sarah Chen",
-        role: "CTO, NeuralScale",
-        content: "The AI integration wasn't just a tool; it was a fundamental shift in our operational velocity. We're seeing 300% efficiency gains.",
-        rating: 5,
-    },
-    {
-        name: "Marcus Thorne",
-        role: "Director of Ops, Vortex Logistics",
-        content: "Predictive analytics stopped being a buzzword and became our daily reality. The dashboard visualization is simply world-class.",
-        rating: 5,
-    },
-    {
-        name: "Elena Rodriguez",
-        role: "Founder, Cypher Security",
-        content: "Trusted automation that actually respects our security protocols. The custom bot handles sensitive queries with perfect accuracy.",
-        rating: 5,
-    },
-    {
-        name: "James Wu",
-        role: "VP Marketing, Sova Tech",
-        content: "Our customer retention shot up by 40% after implementing the personalized AI recommendation engine. Exceptional ROI.",
-        rating: 5,
-    },
-    {
-        name: "Amara Patel",
-        role: "Head of Product, NextGen",
-        content: "The scalability of their workflow automation is unmatched. We grew from 10 to 100 employees without adding administrative bloat.",
-        rating: 5,
-    },
-    {
-        name: "David Kim",
-        role: "CEO, QuantumFinance",
-        content: "Finally, an AI partner that understands compliance. The ethical guardrails they implemented gave us the confidence to deploy.",
-        rating: 5,
-    },
-]
+// Testimonials passed via props
 
 const TestimonialCard = ({
     name,
@@ -101,7 +64,16 @@ const TestimonialCard = ({
     )
 }
 
-export function TestimonialMarquee() {
+export interface Testimonial {
+    name: string;
+    role: string;
+    content: string;
+    rating: number;
+}
+
+export function TestimonialMarquee({ testimonials }: { testimonials: Testimonial[] }) {
+    if (!testimonials || testimonials.length === 0) return null;
+
     return (
         <div className="relative flex w-full flex-col overflow-hidden py-10 gap-8">
             {/* Row 1: Left to Right */}
