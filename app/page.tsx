@@ -29,19 +29,7 @@ import {
   Twitter,
   Facebook,
 } from "lucide-react"
-import { client } from "@/lib/sanity.client"
-import { groq } from "next-sanity"
 import { getIcon } from "@/lib/icons"
-
-// Identify this page as dynamic/ISR
-export const revalidate = 30;
-
-const query = groq`{
-  "hero": *[_type == "hero"][0],
-  "services": *[_type == "service"],
-  "testimonials": *[_type == "testimonial"],
-  "pricing": *[_type == "pricing"] | order(price asc)
-}`;
 
 // Fallback visual mapping for services
 const visualMap: Record<string, any> = {
@@ -59,16 +47,32 @@ const defaultHero = {
   ctaText: "Schedule Strategy Session"
 };
 
-export default async function HomePage() {
-  const data = await client.fetch(query).catch((err) => {
-    console.error("Sanity fetch error:", err);
-    return {};
-  });
+const defaultTestimonials = [
+  {
+    name: "Sarah Jenkins",
+    role: "CTO at EnterpriseCorp",
+    content: "The strategic AI roadmap developed by the consulting team transformed our legacy operations. We've seen an 80% decrease in processing time.",
+    rating: 5,
+  },
+  {
+    name: "Michael Chen",
+    role: "VP of Engineering at FinTech Solutions",
+    content: "Their custom LLM integration was seamless and secure. The workflow automation has saved us hundreds of developer hours.",
+    rating: 5,
+  },
+  {
+    name: "Elena Rostova",
+    role: "Director of Analytics at GlobalRetail",
+    content: "Outstanding insight and flawless execution. The smart analytics dashboard provided clarity and insights that grew our sales conversion by 150%.",
+    rating: 5,
+  },
+];
 
-  const hero = data?.hero || defaultHero;
-  const services = data?.services || [];
-  const testimonials = data?.testimonials || [];
-  const pricingPlans = data?.pricing || [];
+export default function HomePage() {
+  const hero = defaultHero;
+  const services = [];
+  const testimonials = defaultTestimonials;
+  const pricingPlans = [];
 
   return (
     <div className="min-h-screen bg-black">
